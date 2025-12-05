@@ -1,0 +1,39 @@
+<ion-app>
+  <ion-split-pane contentId="main-content" when="false">
+
+    <ion-menu contentId="main-content" type="overlay">
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>SippaMenu</ion-title>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content>
+        <ion-list id="inbox-list">
+
+          <ion-menu-toggle [autoHide]="false" *ngFor="let p of appPages">
+            <ion-item [routerLink]="p.url" routerLinkActive="selected" [routerDirection]="'root'">
+              <ion-icon aria-hidden="true" slot="start" [ios]="p.icon + 'Outline'" [md]="p.icon + 'Sharp'"></ion-icon>
+              <ion-label>{{ p.title }}</ion-label>
+            </ion-item>
+          </ion-menu-toggle>
+
+          <ion-item lines="full"></ion-item>
+
+          <ion-menu-toggle [autoHide]="false">
+            <ion-item (click)="logout()">
+              <ion-icon aria-hidden="true" slot="start" ios="logOutOutline" md="logOutSharp"></ion-icon>
+              <ion-label>Cerrar Sesión</ion-label>
+            </ion-item>
+          </ion-menu-toggle>
+
+        </ion-list>
+      </ion-content>
+    </ion-menu>
+
+    <div class="ion-page">
+      <ion-router-outlet id="main-content"></ion-router-outlet>
+    </div>
+
+  </ion-split-pane>
+</ion-app>

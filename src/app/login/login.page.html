@@ -1,0 +1,55 @@
+<ion-content [fullscreen]="true" class="login-background">
+
+  <form [formGroup]="form" (ngSubmit)="signIn()">
+
+    <div class="header-content ion-text-center">
+      <h1 class="main-title">SIPPA</h1>
+      <p class="subtitle">Accede a tu cuenta</p>
+    </div>
+
+    <ion-card class="ion-padding login-card">
+      <ion-card-content>
+
+        <ion-list lines="none">
+
+          <ion-item>
+            <ion-label>Correo Electrónico</ion-label>
+            <ion-input type="email"
+                       formControlName="email"
+                       mode="md"
+                       autocapitalize="off"
+                       autocomplete="email"
+                       inputmode="email">
+            </ion-input>
+          </ion-item>
+          <div *ngIf="form.get('email')?.invalid && form.get('email')?.touched">
+            <p *ngIf="form.get('email')?.errors?.['required']">El correo es obligatorio.</p>
+            <p *ngIf="form.get('email')?.errors?.['email']">Formato de correo inválido.</p>
+          </div>
+
+          <ion-item class="ion-margin-top">
+            <ion-label>Contraseña</ion-label>
+            <ion-input type="password"
+                       formControlName="password"
+                       mode="md"
+                       autocapitalize="off"
+                       autocomplete="current-password">
+            </ion-input>
+          </ion-item>
+          <div *ngIf="form.get('password')?.invalid && form.get('password')?.touched">
+            <p *ngIf="form.get('password')?.errors?.['required']">La contraseña es obligatoria.</p>
+            <p *ngIf="form.get('password')?.errors?.['minlength']">Debe tener al menos 6 caracteres.</p>
+          </div>
+
+        </ion-list>
+
+        <ion-button expand="block" type="submit" [disabled]="!form.valid" class="ion-margin-top">
+          Iniciar Sesión
+        </ion-button>
+
+      </ion-card-content>
+    </ion-card>
+
+  </form>
+
+</ion-content>
