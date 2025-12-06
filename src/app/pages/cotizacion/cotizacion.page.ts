@@ -3,13 +3,21 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, ModalController, ToastController } from '@ionic/angular';
 import { Router } from '@angular/router';
+
 import { SupabaseService } from '../../services/supabase';
-import { Ingrediente } from '../../models/Database.types';
+// Importa las interfaces necesarias desde tu fuente única
+import { Ingrediente, Cotizacion } from '../../models/Database.types';
 import { PedidoModalComponent } from '../agenda/pedido-modal/pedido-modal.component';
 
+// -----------------------------------------------------------
+// INTERFAZ PARA LA TABLA DINÁMICA DE INGREDIENTES SELECCIONADOS
+// -----------------------------------------------------------
 interface SelectedIngredient {
-  ingredient: Ingrediente;
-  quantity: number;
+  ing_id: string | null;  // ID del ingrediente seleccionado
+  quantity: number;       // Cantidad ingresada por el cliente (gramos, cc, o unidades)
+  unitPrice: number;      // Precio por unidad base (ing_precio de la DB)
+  unitName: string;       // Nombre de la unidad (ej: 'unidad', 'gramos', 'cc')
+  subtotal: number;       // unitPrice * factor de conversión * quantity
 }
 
 @Component({
@@ -20,82 +28,134 @@ interface SelectedIngredient {
   imports: [IonicModule, CommonModule, FormsModule]
 })
 export class CotizacionPage implements OnInit {
-  ingredients: Ingrediente[] = [];
-  selectedIngredients: SelectedIngredient[] = [];
-  margin: number = 30; // Default margin
+  ingredients: Ingrediente[] = []; // Lista completa de ingredientes de la DB
+  selectedIngredients: SelectedIngredient[] = []; // Array para las filas dinámicas
 
-  selectedIngredientId: string | null = null;
-  selectedQuantity: number = 1;
+  // Inyecciones
+  private supabaseService = inject(SupabaseService);
+  private modalCtrl = inject(ModalController);
+  private toastCtrl = inject(ToastController);
+  private router = inject(Router);
 
-  // Refactored for Bulk Selection
-  ingredientQuantities: { [key: string]: number } = {};
-
-  private supabaseService= inject(SupabaseService);
-  private modalCtrl= inject(ModalController);
-  private toastCtrl= inject(ToastController);
-  private router= inject (Router);
-
-  constructor(
-
-  ) { }
+  constructor() {}
 
   async ngOnInit() {
     this.ingredients = await this.supabaseService.getIngredientes() || [];
-    // Initialize quantities
-    this.ingredients.forEach(ing => {
-      this.ingredientQuantities[ing.ing_id!] = 0; // Ensure ing_id is treated as string
+
+    // Inicializar con una fila vacía si el array está vacío
+    if (this.selectedIngredients.length === 0) {
+      this.addIngredient();
+    }
+  }
+
+  // -----------------------------------------------------------
+  // MÉTODOS DE LA TABLA DINÁMICA
+  // -----------------------------------------------------------
+
+  addIngredient() {
+    this.selectedIngredients.push({
+      ing_id: null,
+      quantity: 1,
+      unitPrice: 0,
+      unitName: '',
+      subtotal: 0
     });
   }
 
-  get selectedIngredientsList(): SelectedIngredient[] {
-    return this.ingredients
-      .filter(ing => ing.ing_id && this.ingredientQuantities[ing.ing_id] > 0)
-      .map(ing => ({
-        ingredient: ing,
-        quantity: this.ingredientQuantities[ing.ing_id!]
-      }));
+  removeIngredient(index: number) {
+    this.selectedIngredients.splice(index, 1);
+    this.calculateTotals();
   }
 
+  // Actualiza el precio unitario y la unidad cuando se selecciona un ingrediente
+  updateIngredientDetails(index: number) {
+    const selectedItem = this.selectedIngredients[index];
+
+    const fullIngredient = this.ingredients.find(i => i.ing_id === selectedItem.ing_id);
+
+    if (fullIngredient) {
+      selectedItem.unitPrice = fullIngredient.ing_precio;
+      // Obtener el nombre de la unidad (asumiendo que viene anidado)
+      selectedItem.unitName = fullIngredient.unidad_medida?.unmed_nombre || 'unidad';
+
+    } else {
+      selectedItem.unitPrice = 0;
+      selectedItem.unitName = '';
+    }
+
+    this.calculateTotals();
+  }
+
+  // -----------------------------------------------------------
+  // LÓGICA DE CÁLCULO DE PRESUPUESTO (Regla de Medida)
+  // -----------------------------------------------------------
+
+  calculateTotals() {
+    this.selectedIngredients.forEach(item => {
+      const qty = Number(item.quantity) || 0;
+      let subtotal = 0;
+
+      // IMPLEMENTACIÓN DE LAS REGLAS DE CÁLCULO
+      switch (item.unitName.toLowerCase()) {
+        case 'unidad':
+          // Precio por UNIDAD * Cantidad de unidades
+          subtotal = item.unitPrice * qty;
+          break;
+
+        case 'gramos':
+        case 'cc':
+          // Precio por Gramo/CC * Cantidad ingresada
+          subtotal = item.unitPrice * qty;
+          break;
+
+        default:
+          subtotal = item.unitPrice * qty;
+          break;
+      }
+
+      item.subtotal = subtotal;
+    });
+  }
+
+  // Getters para el Footer (Totales)
+
   get totalCost(): number {
-    return this.selectedIngredientsList.reduce((sum, item) => {
-      return sum + (item.ingredient.ing_precio * item.quantity);
-    }, 0);
+    this.calculateTotals();
+    return this.selectedIngredients.reduce((sum, item) => sum + item.subtotal, 0);
+  }
+
+  get laborCost(): number {
+    // Mano de obra es igual al 100% del Total Ingredientes
+    return this.totalCost;
   }
 
   get suggestedPrice(): number {
-    return this.totalCost * (1 + (this.margin / 100));
+    // Total Presupuesto = Total Ingredientes + Mano de Obra
+    return this.totalCost + this.laborCost;
   }
 
-  incrementQuantity(id: string) {
-    this.ingredientQuantities[id] = (this.ingredientQuantities[id] || 0) + 1;
-  }
-
-  decrementQuantity(id: string) {
-    if (this.ingredientQuantities[id] > 0) {
-      this.ingredientQuantities[id]--;
-    }
-  }
+  // -----------------------------------------------------------
+  // FLUJO DE GUARDADO Y CONVERSIÓN
+  // -----------------------------------------------------------
 
   async guardarCotizacion(): Promise<number | null> {
-    const selected = this.selectedIngredientsList;
+    const selected = this.selectedIngredients.filter(item => item.ing_id && item.quantity > 0);
+
     if (selected.length === 0) {
-      this.presentToast('Agrega al menos un ingrediente', 'danger');
+      this.presentToast('Agrega al menos un ingrediente con cantidad válida.', 'danger');
       return null;
     }
 
-    // RN-8.2.1: Validate Margin
-    if (this.margin < 0) {
-      this.presentToast('El margen de ganancia no puede ser negativo.', 'danger');
-      return null;
-    }
-
-    const cotizacion = {
+    // Usamos el Total Presupuesto (suggestedPrice) como el costo final de la cotización
+    const cotizacion: Partial<Cotizacion> = {
       cot_total: Math.round(this.suggestedPrice),
       cot_detalle: JSON.stringify(selected.map(item => ({
-        nombre: item.ingredient.ing_nombre,
+        ing_id: item.ing_id,
+        nombre: this.ingredients.find(i => i.ing_id === item.ing_id)?.ing_nombre,
         cantidad: item.quantity,
-        precio_unitario: item.ingredient.ing_precio,
-        subtotal: item.ingredient.ing_precio * item.quantity
+        precio_unitario: item.unitPrice,
+        subtotal: item.subtotal,
+        unidad_medida: item.unitName // Añadir la unidad para el registro
       }))),
       cli_id: 1 // Cliente Mostrador
     };
@@ -113,11 +173,11 @@ export class CotizacionPage implements OnInit {
   }
 
   async convertToPedido() {
-    // 1. Save Quotation first to get ID
+    // 1. Guardar Cotización primero
     const cotId = await this.guardarCotizacion();
     if (!cotId) return;
 
-    // 2. Open Modal in Conversion Mode
+    // 2. Abrir Modal en Modo Conversión, enviando el precio total
     const modal = await this.modalCtrl.create({
       component: PedidoModalComponent,
       componentProps: {
@@ -131,7 +191,7 @@ export class CotizacionPage implements OnInit {
     const { data, role } = await modal.onWillDismiss();
 
     if (role === 'confirm' && data) {
-      // 3. Call Service to Convert
+      // 3. Llamar al servicio para convertir la cotización a pedido
       const conversionData = {
         ...data,
         cotId: cotId
@@ -143,12 +203,10 @@ export class CotizacionPage implements OnInit {
         this.presentToast('Error al convertir cotización a pedido', 'danger');
       } else {
         this.presentToast('Pedido agendado exitosamente', 'success');
-        this.selectedIngredients = []; // Reset
-        // Reset quantities
-        this.ingredients.forEach(ing => {
-          if (ing.ing_id) this.ingredientQuantities[ing.ing_id] = 0;
-        });
-        // 4. Redirect to Calendar
+        this.selectedIngredients = []; // Resetear lista
+        this.addIngredient(); // Dejar una fila vacía
+
+        // 4. Redirigir a la Agenda
         this.router.navigate(['/agenda']);
       }
     }

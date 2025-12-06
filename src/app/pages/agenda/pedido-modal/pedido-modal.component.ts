@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { SupabaseService } from '../../../services/supabase';
-import { Cliente } from '../../../../../../../app/models/database.types';
+import { Cliente } from '../../../models/Database.types';
 
 @Component({
     selector: 'app-pedido-modal',

@@ -217,17 +217,17 @@ export class SupabaseService {
 
   public async getIngredienteById(id: string): Promise<Ingrediente> {
     const { data, error } = await this.supabase
-      .from('ingredientes')
-      .select(`
-            ing_id,
-            ing_nombre,
-            ing_precio,
-            unmed_id,
-            is_deleted,
-            unidad_medida (unmed_nombre)`)
-      .eq('ing_id', id)
-      .limit(1)
-      .single();
+        .from('ingredientes')
+        .select(`
+          ing_id,
+          ing_nombre,
+          ing_precio,
+          unmed_id,
+          is_deleted,
+          unidad_medida (unmed_nombre)`) // 🚨 ing_estado ha sido eliminado del select
+        .eq('ing_id', id)
+        .limit(1)
+        .single();
 
     if (error) {
       console.error("Error al obtener ingrediente:", error.message);
@@ -238,11 +238,13 @@ export class SupabaseService {
       throw new Error(`Ingrediente con ID ${id} no encontrado.`);
     }
 
-    // y tomamos el primer elemento [0] antes de acceder a unmed_nombre.
-    const unidadMedidaArray = data.unidad_medida as any[] | null;
-    const nombreUnidad = unidadMedidaArray && unidadMedidaArray.length > 0
-      ? unidadMedidaArray[0].unmed_nombre
-      : 'N/A';
+    // Cuando se usa .single(), el JOIN 1:1 devuelve un OBJETO.
+    const unidadMedidaObjeto = data.unidad_medida as unknown as { unmed_nombre: string } | null;
+
+    // Extracción simple
+    const nombreUnidad = unidadMedidaObjeto
+        ? unidadMedidaObjeto.unmed_nombre
+        : 'N/A';
 
 
     const ingrediente: Ingrediente = {
@@ -250,11 +252,12 @@ export class SupabaseService {
       ing_nombre: data.ing_nombre,
       ing_precio: data.ing_precio,
       is_deleted: data.is_deleted,
+      // 🚨 ing_estado ha sido eliminado de aquí también
 
-      unmed_nombre: nombreUnidad, // 👈 Usamos el nombre extraído
+      unmed_nombre: nombreUnidad,
+      unidad_medida: unidadMedidaObjeto,
 
-      // Aseguramos que unmed_id sea number
-      unmed_id: Number(data.unmed_id),
+      unmed_id: data.unmed_id, // Asumimos que es number
     };
 
     return ingrediente;
