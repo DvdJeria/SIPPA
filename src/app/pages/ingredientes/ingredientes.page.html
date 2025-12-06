@@ -6,6 +6,13 @@
 
     <ion-title>Inventario de Ingredientes</ion-title>
 
+    <ion-searchbar
+      slot="start"
+      placeholder="Buscar ingrediente..."
+      (ionInput)="handleSearch($event)"
+      [debounce]= 300 >
+    </ion-searchbar>
+
     <ion-buttons slot="end" *ngIf="isAdministrador()">
       <ion-button routerLink="/ingredientes/new" color="success">
         <ion-icon name="add-circle-outline"></ion-icon>
@@ -44,8 +51,8 @@
 
       <div slot="end" class="ion-text-end">
 
-        <ion-chip [color]="ing.ing_estado ? 'success' : 'warning'">
-          {{ ing.ing_estado ? 'Activo' : 'Agotado' }}
+        <ion-chip [color]="ing.is_deleted ? 'warning' : 'success'">
+          {{ ing.is_deleted ? 'Agotado' : 'Activo' }}
         </ion-chip>
 
         <ion-buttons *ngIf="isAdministrador()" class="ion-justify-content-end">

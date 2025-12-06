@@ -55,15 +55,6 @@
         <p class="ion-padding-start ion-no-margin"><small>La unidad de medida es obligatoria.</small></p>
       </ion-text>
 
-      <ion-item>
-        <ion-label>Activo/Disponible</ion-label>
-        <ion-toggle slot="end" formControlName="ing_estado"></ion-toggle>
-      </ion-item>
-
     </ion-list>
-
-    <ion-button expand="block" type="submit" [disabled]="ingredienteForm.invalid || isLoading" class="ion-padding">
-      {{ isEditing ? 'Actualizar Ingrediente' : 'Agregar Ingrediente' }}
-    </ion-button>
   </form>
 </ion-content>

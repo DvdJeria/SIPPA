@@ -53,7 +53,7 @@ export class AppComponent {
   public appPages = [
     { title: 'Materia Prima', url: '/pages/ingredientes', icon: 'archive' },
     { title: 'Pedidos', url: '/pages/pedidos-calendar', icon: 'calendar' },
-    { title: 'Generar Cotización', url: '/pages/cotizacion-form', icon: 'create' }
+    { title: 'Generar Cotización', url: '/cotizacion', icon: 'create' }
   ];
 
   constructor() {

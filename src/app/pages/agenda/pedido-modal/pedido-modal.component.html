@@ -1,0 +1,75 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-button color="medium" (click)="cancel()">Cancelar</ion-button>
+        </ion-buttons>
+        <ion-title>Agendar Pedido</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="confirm()" [strong]="true">Guardar</ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+    <ion-list>
+        <ion-list-header>
+            <ion-label>Datos del Cliente</ion-label>
+        </ion-list-header>
+
+        <ion-item *ngIf="!conversionMode">
+            <ion-label>Nuevo Cliente</ion-label>
+            <ion-toggle [(ngModel)]="isNewClient"></ion-toggle>
+        </ion-item>
+
+        <ng-container *ngIf="!isNewClient">
+            <ion-item>
+                <ion-label position="stacked">Seleccionar Cliente</ion-label>
+                <ion-select [(ngModel)]="selectedClienteId" placeholder="Seleccione un cliente">
+                    <ion-select-option *ngFor="let c of clientes" [value]="c.cli_id">
+                        {{ c.cli_nombre }} {{ c.cli_apellido }}
+                    </ion-select-option>
+                </ion-select>
+            </ion-item>
+        </ng-container>
+
+        <ng-container *ngIf="isNewClient">
+            <ion-item>
+                <ion-label position="stacked">Nombre</ion-label>
+                <ion-input type="text" [(ngModel)]="newClienteNombre"></ion-input>
+            </ion-item>
+            <ion-item>
+                <ion-label position="stacked">Apellido</ion-label>
+                <ion-input type="text" [(ngModel)]="newClienteApellido"></ion-input>
+            </ion-item>
+            <ion-item>
+                <ion-label position="stacked">Email</ion-label>
+                <ion-input type="email" [(ngModel)]="newClienteEmail"></ion-input>
+            </ion-item>
+        </ng-container>
+    </ion-list>
+
+    <ion-list>
+        <ion-list-header>
+            <ion-label>Datos del Pedido</ion-label>
+        </ion-list-header>
+
+        <ion-item lines="none" class="ion-margin-top">
+            <ion-label>Fecha de Entrega</ion-label>
+        </ion-item>
+        <ion-item lines="none">
+            <ion-datetime-button datetime="datetime"></ion-datetime-button>
+            <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                    <ion-datetime id="datetime" presentation="date" [(ngModel)]="fechaEntrega"></ion-datetime>
+                </ng-template>
+            </ion-modal>
+        </ion-item>
+
+        <ion-item>
+            <ion-label position="stacked">Precio Total</ion-label>
+            <ion-input type="number" [(ngModel)]="precio" placeholder="$0"></ion-input>
+        </ion-item>
+    </ion-list>
+
+</ion-content>

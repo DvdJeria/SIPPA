@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SupabaseService } from '../../services/supabase'; // Ajusta la ruta si es necesario
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import {IonHeader,
   IonToolbar,
   IonButtons,
@@ -17,6 +17,7 @@ import {IonHeader,
   IonText,
   IonChip,
   IonButton,
+  IonSearchbar,
   IonIcon} from '@ionic/angular/standalone';
 
 import { addIcons } from 'ionicons';
@@ -28,7 +29,7 @@ import {
   repeatOutline
 } from 'ionicons/icons';
 
-import { Ingrediente, UserRole } from '../../models/ingredientes';
+import { Ingrediente, UserRole } from '../../models/Database.types';
 
 @Component({
   selector: 'app-ingredientes',
@@ -36,6 +37,7 @@ import { Ingrediente, UserRole } from '../../models/ingredientes';
   styleUrls: ['./ingredientes.page.scss'],
   standalone: true,
   imports: [CommonModule, // Necesario para el pipe 'number' y directivas *ngIf/*ngFor
+    RouterModule,
     // Lista de Componentes de Ionic:
     IonHeader,
     IonToolbar,
@@ -52,10 +54,12 @@ import { Ingrediente, UserRole } from '../../models/ingredientes';
     IonText,
     IonChip,
     IonButton,
-    IonIcon
+    IonIcon,
+    IonSearchbar
   ]
 })
 export class IngredientesPage {
+
   private supabaseService = inject(SupabaseService);
   private router = inject(Router);
 
@@ -63,6 +67,18 @@ export class IngredientesPage {
   ingredientes: Ingrediente[] = [];
   userRole: UserRole = 'user';
   isLoading: boolean = false;
+
+  public searchTerm: string = '';
+
+  /**
+   * Captura el evento de la barra de búsqueda y actualiza el término de búsqueda.
+   */
+  handleSearch(event: any) {
+    this.searchTerm = event.target.value.toLowerCase();
+
+    // 🚨 Vuelve a cargar los datos con el nuevo término de búsqueda
+    this.loadData();
+  }
 
   constructor() {
     addIcons({
@@ -82,12 +98,12 @@ export class IngredientesPage {
   async loadData() {
     this.isLoading = true;
     try {
-      // 1. Obtener el rol del usuario (para RBAC visual)
+      // 1. Obtener el rol del usuario (si ya está en ngOnInit, esta línea puede ser redundante,
+      // pero es segura si la dejas)
       this.userRole = await this.supabaseService.getUserRole();
 
-      // 2. Obtener los ingredientes (la lógica de filtrado por is_deleted
-      // ya está en el servicio basada en el rol)
-      this.ingredientes = await this.supabaseService.getIngredientes();
+      // 2.Obtener los ingredientes, PASANDO el término de búsqueda al servicio
+      this.ingredientes = await this.supabaseService.getIngredientes(this.searchTerm);
 
     } catch (error) {
       console.error('Error al cargar datos:', error);
@@ -98,10 +114,12 @@ export class IngredientesPage {
   }
 
   // Método placeholders para las acciones del CRUD del Administrador
-  edit(id: string) {
-    //Pendiente: Navegar a la página de edición
-    alert(`Editar ingrediente ID: ${id}`);
+  public edit(id: string) {
+
+    this.router.navigate(['/ingredientes', id]);
   }
+
+
 
   async softDelete(id: string, nombre: string, isCurrentlyDeleted: boolean) {
     // El nuevo estado es el opuesto al actual

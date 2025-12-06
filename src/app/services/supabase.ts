@@ -7,7 +7,7 @@ import { Network } from '@capacitor/network';
 const supabaseUrl = 'https://ymdcsjmzmagjyudfijtz.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltZGNzam16bWFnanl1ZGZpanR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM2ODQzMjAsImV4cCI6MjA3OTI2MDMyMH0.KzFLfbkzWcVt3HjMoSgXfA6Lemh-UmKLuPFMd8rNXok';
 
-import { Ingrediente, UserRole, UnidadMedida } from '../models/ingredientes';
+import { Ingrediente, UserRole, UnidadMedida } from '../models/Database.types';
 
 @Injectable({
   providedIn: 'root'
@@ -86,46 +86,52 @@ export class SupabaseService {
    * - Simple: Solo ve activos (is_deleted: false).
    * @returns Promesa que resuelve un array de Ingrediente.
    */
-  public async getIngredientes(): Promise<Ingrediente[]> {
-    const session = await this.getSession();
+  public async getIngredientes(searchText?: string): Promise<Ingrediente[]> {
+    const session = await this.getSession(); // Asumo que tienes este método
     if (!session) {
       throw new Error('No hay sesión activa para realizar la consulta.');
     }
 
-    const userRole = await this.getUserRole();
+    const userRole = await this.getUserRole(); // Asumo que tienes este método
 
     let query = this.supabase
       .from('ingredientes')
       .select('*, unidad_medida(unmed_nombre)');
 
-    // Aplicar filtro de Soft Delete basado en el rol
+    // 🚨 1. FILTRADO POR BÚSQUEDA (ilike)
+    if (searchText && searchText.trim() !== '') {
+      // Busca coincidencias parciales en el nombre, insensible a mayúsculas/minúsculas
+      query = query.ilike('ing_nombre', `%${searchText}%`);
+    }
+
+    // 2. Aplicar filtro de Soft Delete basado en el rol
     if (userRole === 'user') {
-      //ROL SIMPLE: Solo ve los activos
+      // ROL SIMPLE: Solo ve los activos
       query = query.eq('is_deleted', false);
     }
-    //ROL ADMINISTRADOR: No aplicamos filtro de is_deleted,
-    // por lo que ve TODOS los registros (true o false).
+
+    // 3. Ordenamiento
+    query = query.order('ing_nombre', { ascending: true });
 
     const { data, error } = await query;
 
     if (error) {
+      console.error('Error en getIngredientes:', error);
       throw error;
     }
 
+    // Asegúrate de que este mapeo sea consistente con cómo vienen tus datos.
     const mappedData = data.map((item: any) => ({
       ing_id: item.ing_id,
       ing_nombre: item.ing_nombre,
       ing_precio: item.ing_precio,
-      ing_estado: item.ing_estado,
       is_deleted: item.is_deleted,
-      // La forma de acceder depende si es un arreglo o un objeto anidado.
-      // Usaremos la versión más segura (asumiendo que puede ser un arreglo de un elemento)
+      // La forma de acceder depende de tu join, si la versión original te funcionaba, úsala.
       unmed_nombre: (item.unidad_medida && item.unidad_medida[0]
         ? item.unidad_medida[0].unmed_nombre
         : item.unidad_medida?.unmed_nombre || 'N/A'),
     }));
 
-    // Retorna los datos ya mapeados
     return mappedData as Ingrediente[];
   }
 
@@ -216,7 +222,6 @@ export class SupabaseService {
             ing_id,
             ing_nombre,
             ing_precio,
-            ing_estado,
             unmed_id,
             is_deleted,
             unidad_medida (unmed_nombre)`)
@@ -233,7 +238,6 @@ export class SupabaseService {
       throw new Error(`Ingrediente con ID ${id} no encontrado.`);
     }
 
-    // 🚨 CORRECCIÓN: Accedemos a la propiedad anidada como un ARREGLO
     // y tomamos el primer elemento [0] antes de acceder a unmed_nombre.
     const unidadMedidaArray = data.unidad_medida as any[] | null;
     const nombreUnidad = unidadMedidaArray && unidadMedidaArray.length > 0
@@ -245,7 +249,6 @@ export class SupabaseService {
       ing_id: data.ing_id,
       ing_nombre: data.ing_nombre,
       ing_precio: data.ing_precio,
-      ing_estado: data.ing_estado,
       is_deleted: data.is_deleted,
 
       unmed_nombre: nombreUnidad, // 👈 Usamos el nombre extraído
@@ -292,5 +295,103 @@ export class SupabaseService {
       throw new Error('Error al actualizar el ingrediente. Verifique políticas RLS de UPDATE.');
     }
   }
+
+
+
+  //*****************************************************************
+  //Métodos cótización
+  public async createCotizacion(cotizacion: any) {
+    const { data, error } = await this.supabase
+      .from('cotizacion')
+      // @ts-ignore
+      .insert(cotizacion)
+      .select('cot_id')
+      .single();
+
+    return { data, error };
+  }
+
+  public async convertirAPedido(data: {
+    nombre: string;
+    apellido: string;
+    email: string;
+    fechaEntrega: string;
+    precio: number;
+    cotId: number;
+  }) {
+    let cli_id: number;
+
+    // 1. Gestión del Cliente (Upsert)
+    // Buscar si existe el email
+    const { data: existingClient, error: searchError } = await this.supabase
+      .from('cliente')
+      .select('cli_id')
+      .eq('cli_email', data.email)
+      .single();
+
+    if (existingClient) {
+      cli_id = (existingClient as any).cli_id;
+    } else {
+      // Si NO existe, insertar nuevo cliente
+      const { data: newClient, error: createError } = await this.supabase
+        .from('cliente')
+        // @ts-ignore
+        .insert({
+          cli_nombre: data.nombre,
+          cli_apellido: data.apellido,
+          cli_email: data.email
+        })
+        .select('cli_id')
+        .single();
+
+      if (createError || !newClient) {
+        console.error('Error creating client in convert:', createError);
+        return { data: null, error: createError };
+      }
+      cli_id = (newClient as any).cli_id;
+    }
+
+    // 2. Crear el Pedido
+    const { data: newOrder, error: orderError } = await this.supabase
+      .from('pedido') // 🚨 Verificar que esta es la tabla correcta
+      // @ts-ignore
+      .insert({
+        cli_id: cli_id,
+        cot_id: data.cotId,
+        ped_fecha_entrega: data.fechaEntrega,
+        ped_precio: data.precio,
+        ped_estado: 'CONFIRMADO' // o el estado inicial que uses
+      })
+      .select()
+      .single();
+
+    return { data: newOrder, error: orderError };
+  }
+
+  // 1. Método para obtener clientes (usado por el modal)
+  async getClientes() {
+    const { data, error } = await this.supabase
+      .from('cliente')
+      .select('*')
+      .order('cli_nombre', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching clientes:', error);
+      return [];
+    }
+    return data;
+  }
+
+// 2. Método para crear un cliente (usado por el modal)
+  async createCliente(cliente: any) { // Usamos 'any' si no tienes la interfaz DB['Tables']['cliente']['Insert']
+    const { data, error } = await this.supabase
+      .from('cliente')
+      .insert(cliente)
+      .select()
+      .single();
+
+    return { data, error };
+  }
+
 
 }

@@ -54,8 +54,8 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
-    path: 'pages/cotizacion-form',
-    loadComponent: () => import('./pages/cotizacion-form/cotizacion-form.page').then(m => m.CotizacionFormPage),
+    path: 'cotizacion',
+    loadComponent: () => import('./pages/cotizacion/cotizacion.page').then(m => m.CotizacionPage),
     canActivate: [authGuard],
   },
 ];
