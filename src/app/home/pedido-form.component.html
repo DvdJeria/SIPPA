@@ -1,0 +1,91 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-title>{{ pedido ? 'Editar Pedido' : 'Crear Pedido desde Cotización' }}</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="cancel()">Cerrar</ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+    <form [formGroup]="form" (ngSubmit)="submit()">
+        <ion-list lines="full">
+
+            <ion-list-header *ngIf="!pedido">
+                <ion-label>Seleccionar Cotización Base</ion-label>
+            </ion-list-header>
+
+            <ion-item *ngIf="!pedido">
+                <ion-select label="Cotización"
+                            labelPlacement="stacked"
+                            formControlName="cotizacionId"
+                            placeholder="Elige una cotización">
+                    <ion-select-option *ngFor="let quote of availableQuotes" [value]="quote.id">
+                        {{ quote.nombre }} - ${{ quote.total }}
+                    </ion-select-option>
+                </ion-select>
+            </ion-item>
+
+            <ion-list-header>
+                <ion-label>Detalles del Pedido</ion-label>
+            </ion-list-header>
+
+            <ion-item>
+                <ion-input label="Precio Total"
+                           labelPlacement="stacked"
+                           type="number"
+                           formControlName="precio"
+                           [readonly]="true"
+                           [disabled]="!editable"></ion-input>
+            </ion-item>
+
+            <ion-item>
+                <ion-textarea label="Descripción/Detalle"
+                              labelPlacement="stacked"
+                              formControlName="descripcion"
+                              [rows]="3"
+                              [readonly]="true"
+                              [disabled]="!editable"></ion-textarea>
+            </ion-item>
+
+            <ion-list-header>
+                <ion-label>Datos de Entrega</ion-label>
+            </ion-list-header>
+
+            <ion-item>
+                <ion-input label="Fecha de entrega" labelPlacement="stacked" type="date" formControlName="fechaEntrega"></ion-input>
+            </ion-item>
+
+            <ion-item *ngIf="form.controls.fechaEntrega.errors?.['minDate'] && form.controls.fechaEntrega.touched" lines="none" color="transparent">
+                <ion-label color="danger" class="ion-text-wrap" style="padding-top: 0; padding-bottom: 5px;">
+                    La fecha de entrega debe ser al menos con 24 horas de anticipación (a partir de mañana).
+                </ion-label>
+            </ion-item>
+
+            <ion-item>
+                <ion-input label="Nombre del Cliente" labelPlacement="stacked" type="text" formControlName="clienteNombre"></ion-input>
+            </ion-item>
+
+            <ion-item>
+                <ion-input label="Apellido del Cliente" labelPlacement="stacked" type="text" formControlName="clienteApellido"></ion-input>
+            </ion-item>
+
+            <ion-item>
+                <ion-input label="Teléfono" labelPlacement="stacked" type="tel" formControlName="clienteTelefono"></ion-input>
+            </ion-item>
+
+            <ion-item>
+                <ion-input label="Instagram (Opcional)" labelPlacement="stacked" type="text" formControlName="clienteInstagram"></ion-input>
+            </ion-item>
+
+        </ion-list>
+
+        <div style="margin-top:16px">
+            <ion-button expand="block" type="submit" [disabled]="!editable || form.invalid">
+                {{ pedido ? 'Guardar Cambios' : 'Crear Pedido' }}
+            </ion-button>
+            <ion-button *ngIf="pedido" expand="block" color="danger" (click)="cancelPedido()">Cancelar pedido</ion-button>
+            <p *ngIf="pedido && !editable" style="color:var(--ion-color-danger); margin-top:8px">No se puede editar este pedido con menos de 24 horas para la entrega.</p>
+        </div>
+    </form>
+</ion-content>

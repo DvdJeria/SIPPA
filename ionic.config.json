@@ -1,0 +1,7 @@
+{
+  "name": "SippaMenu",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

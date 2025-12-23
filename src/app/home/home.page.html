@@ -1,0 +1,64 @@
+<ion-header [translucent]="true">
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-menu-button></ion-menu-button>
+        </ion-buttons>
+
+        <ion-title>Gestión de Pedidos</ion-title>
+
+        <ion-button slot="end" (click)="createPedidoPrompt()" color="success" fill="solid">
+            <ion-icon name="add-circle-outline"></ion-icon>
+            <span class="ion-padding-start">Nuevo Pedido</span>
+        </ion-button>
+    </ion-toolbar>
+
+    <ion-toolbar class="calendar-nav">
+        <div class="calendar">
+            <div class="header">
+                <ion-button fill="clear" (click)="prevMonth()">
+                    <ion-icon slot="icon-only" name="chevron-back"></ion-icon>
+                </ion-button>
+
+                <div class="label">{{ currentLabel }}</div>
+
+                <ion-button fill="clear" (click)="nextMonth()">
+                    <ion-icon slot="icon-only" name="chevron-forward"></ion-icon>
+                </ion-button>
+            </div>
+        </div>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+    <div class="calendar">
+
+        <div class="weekdays">
+            <div>Lun</div>
+            <div>Mar</div>
+            <div>Mié</div>
+            <div>Jue</div>
+            <div>Vie</div>
+            <div>Sáb</div>
+            <div>Dom</div>
+        </div>
+
+        <div class="grid">
+            <div class="cell"
+                 *ngFor="let day of days"
+                 [class.other]="!day.inMonth"
+                 (click)="onDayClick(day)">
+
+                <div class="num">{{ day.date.getDate() }}</div>
+
+                <div *ngIf="day.count > 0" class="badge">
+                    {{ day.count }}
+                </div>
+            </div>
+        </div>
+        <div class="actions">
+        </div>
+    </div>
+
+    <div id="container">
+    </div>
+</ion-content>

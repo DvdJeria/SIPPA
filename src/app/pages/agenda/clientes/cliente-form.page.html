@@ -1,0 +1,39 @@
+<ion-header>
+    <ion-toolbar color="primary">
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/agenda/clientes"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{ isEditing ? 'Editar Cliente' : 'Nuevo Cliente' }}</ion-title>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+    <form [formGroup]="clienteForm" (ngSubmit)="saveCliente()">
+
+        <ion-item>
+            <ion-input label="Nombre" labelPlacement="floating" formControlName="nombre" type="text" required></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-input label="Apellido" labelPlacement="floating" formControlName="apellido" type="text" required></ion-input>
+        </ion-item>
+
+        <ion-item>
+            <ion-input label="Email" labelPlacement="floating" formControlName="email" type="email" required></ion-input>
+        </ion-item>
+
+        <ion-item>
+            <ion-input label="Teléfono" labelPlacement="floating" formControlName="telefono" type="tel"></ion-input>
+        </ion-item>
+
+        <ion-button
+                expand="block"
+                type="submit"
+                color="success"
+                [disabled]="clienteForm.invalid"
+                class="ion-padding-top">
+            {{ isEditing ? 'Guardar Cambios' : 'Crear Cliente' }}
+        </ion-button>
+
+    </form>
+</ion-content>

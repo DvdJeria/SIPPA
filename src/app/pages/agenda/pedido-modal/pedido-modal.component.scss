@@ -1,0 +1,35 @@
+
+
+// Colores básicos para diagnóstico
+ion-content {
+  --background: #f0f0f0;
+}
+
+ion-list {
+  background: transparent;
+}
+
+ion-item {
+  --background: white;
+  margin-bottom: 8px;
+}
+
+ion-label {
+  color: black;
+}
+
+ion-button {
+  --background: #3880ff;
+  --color: white;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+ion-button[color="success"] {
+  --background: green;
+  --color: white;
+  color: white !important;
+  font-size: 16px;
+  font-weight: bold;
+}

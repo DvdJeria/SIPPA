@@ -1,0 +1,71 @@
+<ion-content [fullscreen]="true" class="login-background">
+
+    <form [formGroup]="form" (ngSubmit)="signIn()" class="login-form">
+
+        <div class="header-content ion-text-center">
+            <h1 class="main-title">SIPPA</h1>
+            <p class="subtitle">Accede a tu cuenta</p>
+        </div>
+
+        <ion-card class="login-card">
+            <ion-card-content>
+
+                <ion-list lines="none">
+
+                    <ion-item>
+                        <ion-label position="floating">Correo electrónico</ion-label>
+                        <ion-input
+                                type="email"
+                                formControlName="email"
+                                autocapitalize="off"
+                                autocomplete="email"
+                                inputmode="email">
+                        </ion-input>
+                    </ion-item>
+
+                    <div class="error-text"
+                         *ngIf="form.get('email')?.invalid && form.get('email')?.touched">
+            <span *ngIf="form.get('email')?.errors?.['required']">
+              El correo es obligatorio
+            </span>
+                        <span *ngIf="form.get('email')?.errors?.['email']">
+              Formato de correo inválido
+            </span>
+                    </div>
+
+                    <ion-item class="ion-margin-top">
+                        <ion-label position="floating">Contraseña</ion-label>
+                        <ion-input
+                                type="password"
+                                formControlName="password"
+                                autocomplete="current-password">
+                        </ion-input>
+                    </ion-item>
+
+                    <div class="error-text"
+                         *ngIf="form.get('password')?.invalid && form.get('password')?.touched">
+            <span *ngIf="form.get('password')?.errors?.['required']">
+              La contraseña es obligatoria
+            </span>
+                        <span *ngIf="form.get('password')?.errors?.['minlength']">
+              Mínimo 6 caracteres
+            </span>
+                    </div>
+
+                </ion-list>
+
+                <ion-button
+                        expand="block"
+                        type="submit"
+                        [disabled]="!form.valid"
+                        class="login-button">
+                    Iniciar sesión
+                </ion-button>
+
+            </ion-card-content>
+        </ion-card>
+
+    </form>
+
+</ion-content>
+

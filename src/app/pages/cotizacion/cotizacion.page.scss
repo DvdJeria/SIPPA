@@ -1,0 +1,182 @@
+
+ion-content {
+  --background: var(--color-fondo, #F0F9F8);
+}
+
+// Estilos para el toolbar
+ion-toolbar {
+  --background: #F3A2BE !important;
+  --color: #fff !important;
+}
+
+ion-title {
+  color: #fff !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 1.2rem;
+}
+
+ion-menu-button {
+  --color: #fff !important;
+  color: #fff !important;
+}
+
+ion-button[slot="end"] {
+  --color: #fff !important;
+  color: #fff !important;
+}
+
+.cotizacion-card {
+  background: var(--color-tarjeta, #FFD3DD);
+  border-radius: 16px;
+  box-shadow: 0 2px 8px #F3A2BE22;
+  padding: 16px;
+}
+
+ion-button:not([fill="clear"]) {
+  --background: var(--color-principal, #F3A2BE);
+  --color: #fff;
+}
+
+// Botón "Agregar" con fill="clear" - forzar visibilidad del texto !NOMOVER
+ion-button[fill="clear"] {
+  --color: var(--color-principal, #F3A2BE) !important;
+  color: var(--color-principal, #F3A2BE) !important;
+  font-weight: bold !important;
+
+  ion-icon {
+    color: var(--color-principal, #F3A2BE) !important;
+  }
+}
+
+.table-scroll-container {
+  overflow-x: auto; /* Permite el scroll horizontal si el contenido es muy ancho */
+  width: 100%;     /* Asegura que ocupe todo el ancho disponible */
+  padding-bottom: 10px; /* Opcional: añade espacio debajo del scroll */
+}
+
+/* Mejora la legibilidad en pantallas estrechas */
+.table-scroll-container ion-grid {
+  border-radius: 12px;
+  background: #fff;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.table-scroll-container ion-row:first-of-type {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+ion-item {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  --min-height: 44px;
+}
+
+// Distribución de columnas - más espacio para ingrediente
+.table-scroll-container ion-col:nth-child(1) {
+  flex: 0 0 35%;
+  max-width: 35%;
+}
+
+.table-scroll-container ion-col:nth-child(2) {
+  flex: 0 0 15%;
+  max-width: 15%;
+}
+
+.table-scroll-container ion-col:nth-child(3) {
+  flex: 0 0 15%;
+  max-width: 15%;
+}
+
+.table-scroll-container ion-col:nth-child(4) {
+  flex: 0 0 15%;
+  max-width: 15%;
+}
+
+.table-scroll-container ion-col:nth-child(5) {
+  flex: 0 0 15%;
+  max-width: 15%;
+}
+
+.table-scroll-container ion-col:nth-child(6) {
+  flex: 0 0 5%;
+  max-width: 5%;
+}
+
+ion-input,
+ion-select {
+  font-size: 0.95rem;
+}
+
+ion-label {
+  font-size: 0.95rem;
+}
+
+ion-footer ion-toolbar {
+  --background: #fff;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.06);
+}
+
+ion-footer ion-row {
+  align-items: center;
+  padding: 4px 0;
+}
+
+/* Ajustes responsive para vista vertical */
+@media (max-width: 480px) {
+  ion-title {
+    font-size: 1rem;
+  }
+
+  .table-scroll-container {
+    padding-bottom: 4px;
+  }
+
+  .table-scroll-container ion-grid {
+    padding: 6px 8px;
+    box-shadow: none;
+    border: 1px solid #e7e7e7;
+  }
+
+  .table-scroll-container ion-row:first-of-type {
+    font-size: 0.8rem;
+  }
+
+  // Más espacio para ingrediente en móviles
+  .table-scroll-container ion-col:nth-child(1) {
+    flex: 0 0 40%;
+    max-width: 40%;
+  }
+
+  .table-scroll-container ion-col:nth-child(2),
+  .table-scroll-container ion-col:nth-child(3),
+  .table-scroll-container ion-col:nth-child(4),
+  .table-scroll-container ion-col:nth-child(5) {
+    flex: 0 0 12%;
+    max-width: 12%;
+  }
+
+  ion-col {
+    padding-inline: 4px;
+  }
+
+  ion-input,
+  ion-select,
+  ion-label {
+    font-size: 0.85rem;
+  }
+
+  ion-button[size="small"] {
+    --padding-start: 4px;
+    --padding-end: 4px;
+  }
+
+  ion-footer h3 {
+    font-size: 1rem;
+    margin: 0;
+  }
+}

@@ -1,0 +1,73 @@
+ion-content {
+  --background: linear-gradient(180deg, #f0f9f8 0%, #ffffff 100%);
+}
+
+/* Contenedor */
+.login-form {
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 32px 16px;
+}
+
+/* Header */
+.header-content {
+  margin-bottom: 32px;
+
+  .main-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #2f5f5a;
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    font-size: 15px;
+    color: #7aa9a3;
+  }
+}
+
+/* Card */
+.login-card {
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+}
+
+/* Inputs */
+ion-item {
+  --background: #ffffff;
+  --border-color: transparent;
+  --highlight-color-focused: #81bfb7;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+ion-label {
+  color: #6b9f99;
+  font-weight: 500;
+}
+
+ion-input {
+  --color: #2f5f5a;
+}
+
+/* Errores */
+.error-text {
+  font-size: 12px;
+  color: #d9534f;
+  margin: 4px 8px 12px;
+}
+
+/* Botón */
+.login-button {
+  margin-top: 24px;
+  --background: #f3a2be;
+  --border-radius: 12px;
+  --box-shadow: 0 6px 16px rgba(243, 162, 190, 0.35);
+  font-weight: 600;
+}
+
+/* Botón deshabilitado */
+ion-button[disabled] {
+  opacity: 0.6;
+}

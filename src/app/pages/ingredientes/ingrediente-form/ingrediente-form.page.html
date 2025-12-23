@@ -1,0 +1,65 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/ingredientes"></ion-back-button>
+    </ion-buttons>
+
+    <ion-title>{{ isEditing ? 'Editar Ingrediente' : 'Nuevo Ingrediente' }}</ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="onSubmit()" [disabled]="ingredienteForm.invalid || isLoading">
+        <ion-icon slot="icon-only" name="save-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div *ngIf="isLoading" class="ion-text-center ion-padding-top">
+    <ion-spinner name="circles"></ion-spinner>
+    <p>Cargando datos...</p>
+  </div>
+
+  <form [formGroup]="ingredienteForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading">
+
+    <ion-list lines="full">
+
+      <ion-item>
+        <ion-label position="floating">Nombre Ingrediente</ion-label>
+        <ion-input type="text" formControlName="ing_nombre"></ion-input>
+      </ion-item>
+      <ion-text color="danger" *ngIf="ingredienteForm.get('ing_nombre')?.touched && ingredienteForm.get('ing_nombre')?.errors?.['required']">
+        <p class="ion-padding-start ion-no-margin"><small>El nombre es obligatorio.</small></p>
+      </ion-text>
+
+      <ion-item>
+        <ion-label position="floating">Precio por unidad ($)</ion-label>
+        <ion-input type="number" formControlName="ing_precio" min="0"></ion-input>
+      </ion-item>
+      <ion-text color="danger" *ngIf="ingredienteForm.get('ing_precio')?.touched && ingredienteForm.get('ing_precio')?.errors?.['min']">
+        <p class="ion-padding-start ion-no-margin"><small>El precio no puede ser negativo.</small></p>
+      </ion-text>
+
+      <ion-item>
+        <ion-label position="floating">Unidad de Medida</ion-label>
+        <ion-select formControlName="unmed_id" required [value]="ingredienteForm.get('unmed_id')?.value || 0">
+          <ion-select-option [value]="0">Seleccione una unidad</ion-select-option>
+          <ion-select-option
+            *ngFor="let unidad of unidades"
+            [value]="unidad.unmed_id">
+            {{ unidad.unmed_nombre }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+
+        <ion-item>
+            <ion-label position="floating">Cantidad Base de Compra</ion-label>
+            <ion-input type="number" formControlName="ing_cantidad_base" min="0"></ion-input>
+        </ion-item>
+      <ion-text color="danger" *ngIf="ingredienteForm.get('unmed_id')?.touched && ingredienteForm.get('unmed_id')?.value === 0">
+        <p class="ion-padding-start ion-no-margin"><small>La unidad de medida es obligatoria.</small></p>
+      </ion-text>
+
+    </ion-list>
+  </form>
+</ion-content>

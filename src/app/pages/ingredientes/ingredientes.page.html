@@ -1,0 +1,83 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+
+    <ion-title>Inventario de Ingredientes</ion-title>
+
+    <ion-searchbar
+      slot="start"
+      placeholder="Buscar ingrediente..."
+      (ionInput)="handleSearch($event)"
+      [debounce]= 300 >
+    </ion-searchbar>
+
+    <ion-buttons slot="end" *ngIf="isAdministrador()">
+      <ion-button routerLink="/ingredientes/new" color="success">
+        <ion-icon name="add-circle-outline"></ion-icon>
+        <ion-label class="ion-padding-start">Agregar</ion-label>
+      </ion-button>
+    </ion-buttons>
+
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <ion-refresher slot="fixed" (ionRefresh)="loadData()">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div *ngIf="isLoading" class="ion-text-center ion-padding-top">
+    <ion-spinner name="circles"></ion-spinner>
+    <p>Cargando ingredientes...</p>
+  </div>
+
+  <ion-list *ngIf="!isLoading">
+    <ion-item *ngFor="let ing of ingredientes">
+
+      <ion-label>
+        <h2>{{ ing.ing_nombre }}</h2>
+        <p>
+          Precio: ${{ ing.ing_precio | number:'1.0' }} |
+          {{ ing.unmed_nombre }}
+        </p>
+
+        <ion-text color="danger" *ngIf="ing.is_deleted">
+          <small>(INACTIVO - Eliminado)</small>
+        </ion-text>
+      </ion-label>
+
+      <div slot="end" class="ion-text-end">
+
+        <ion-chip [color]="ing.is_deleted ? 'warning' : 'success'">
+          {{ ing.is_deleted ? 'Agotado' : 'Activo' }}
+        </ion-chip>
+
+        <ion-buttons *ngIf="isAdministrador()" class="ion-justify-content-end">
+
+          <ion-button color="primary" (click)="edit(ing.ing_id!)" size="small">
+            <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+          </ion-button>
+
+          <ion-button
+            [color]="ing.is_deleted ? 'warning' : 'danger'"
+            (click)="softDelete(ing.ing_id!, ing.ing_nombre, ing.is_deleted)"
+            size="small">
+
+            <ion-icon slot="icon-only"
+                      [name]="ing.is_deleted ? 'repeat-outline' : 'trash-outline'">
+            </ion-icon>
+          </ion-button>
+        </ion-buttons>
+
+      </div>
+    </ion-item>
+  </ion-list>
+
+  <div *ngIf="!isLoading && ingredientes.length === 0" class="ion-text-center ion-padding-top">
+    <p>No hay ingredientes registrados o disponibles para tu rol.</p>
+  </div>
+
+</ion-content>

@@ -1,0 +1,171 @@
+/*
+ * App Global CSS
+ * ----------------------------------------------------------------------------
+ * Put style rules here that you want to apply globally. These styles are for
+ * the entire app and not just one component. Additionally, this file can be
+ * used as an entry point to import other CSS/Sass files to be included in the
+ * output CSS.
+ * For more information on global stylesheets, visit the documentation:
+ * https://ionicframework.com/docs/layout/global-stylesheets
+ */
+
+/* Core CSS required for Ionic components to work properly */
+@import "@ionic/angular/css/core.css";
+
+/* Basic CSS for apps built with Ionic */
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/display.css";
+
+/* Optional CSS utils that can be commented out */
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+
+/**
+ * Ionic Dark Mode
+ * -----------------------------------------------------
+ * For more info, please see:
+ * https://ionicframework.com/docs/theming/dark-mode
+ */
+
+/* @import "@ionic/angular/css/palettes/dark.always.css"; */
+/* @import "@ionic/angular/css/palettes/dark.class.css"; */
+@import '@ionic/angular/css/palettes/dark.system.css';
+
+body, ion-app {
+  background: #F0F9F8 !important;
+  color: #81BFB7;
+}
+
+// Excluir ion-menu del fondo general
+ion-content:not(ion-menu ion-content) {
+  background: #F0F9F8 !important;
+}
+
+// Estilos específicos para el menú lateral (sidebar)
+ion-menu {
+  --background: #FFD3DD !important;
+}
+
+ion-menu ion-toolbar {
+  --background: #F3A2BE !important;
+  --color: #fff !important;
+}
+
+ion-menu ion-title {
+  color: #fff !important;
+  font-weight: 700;
+}
+
+ion-menu ion-content {
+  --background: #FFD3DD !important;
+}
+
+ion-menu ion-item {
+  --background: transparent !important;
+  --color: #333 !important;
+}
+
+ion-menu ion-label {
+  color: #333 !important;
+  font-weight: 600;
+}
+
+ion-menu ion-icon {
+  color: #81BFB7 !important;
+}
+
+ion-menu ion-item.selected {
+  --background: rgba(243, 162, 190, 0.2) !important;
+}
+
+ion-menu ion-item.selected ion-icon {
+  color: #F3A2BE !important;
+}
+
+ion-button:not([fill="clear"]) {
+  --background: #F3A2BE !important;
+  --color: #fff !important;
+  --background-hover: #81BFB7 !important;
+  background: #F3A2BE !important;
+  color: #fff !important;
+}
+
+// Forzar texto blanco en botones con color="success" o color="primary" (SOLO si NO son fill="clear")
+ion-button[color="success"]:not([fill="clear"]),
+ion-button[color="primary"]:not([fill="clear"]) {
+  --color: #ffffff !important;
+  color: #ffffff !important;
+}
+
+ion-button[color="success"]:not([fill="clear"]) ion-label,
+ion-button[color="primary"]:not([fill="clear"]) ion-label,
+ion-button[color="success"]:not([fill="clear"]) ion-icon,
+ion-button[color="primary"]:not([fill="clear"]) ion-icon {
+  color: #ffffff !important;
+}
+
+ion-card {
+  background: #FFD3DD !important;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px #F3A2BE22;
+}
+
+// Estilos para botones con fill="clear" en lista de pedidos
+ion-button[fill="clear"][color="success"] {
+  --color: #28a745 !important;
+  color: #28a745 !important;
+}
+
+ion-button[fill="clear"][color="danger"] {
+  --color: #dc3545 !important;
+  color: #dc3545 !important;
+}
+
+ion-button[fill="clear"]:not([color]) {
+  --color: #007bff !important;
+  color: #007bff !important;
+}
+
+/*
+ * App Global CSS
+ * ----------------------------------------------------------------------------
+ * Put style rules here that you want to apply globally. These styles are for
+ * the entire app and not just one component. Additionally, this file can be
+ * used as an entry point to import other CSS/Sass files to be included in the
+ * output CSS.
+ * For more information on global stylesheets, visit the documentation:
+ * https://ionicframework.com/docs/layout/global-stylesheets
+ */
+
+/* Core CSS required for Ionic components to work properly */
+@import "@ionic/angular/css/core.css";
+
+/* Basic CSS for apps built with Ionic */
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/display.css";
+
+/* Optional CSS utils that can be commented out */
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+
+/**
+ * Ionic Dark Mode
+ * -----------------------------------------------------
+ * For more info, please see:
+ * https://ionicframework.com/docs/theming/dark-mode
+ */
+
+/* @import "@ionic/angular/css/palettes/dark.always.css"; */
+/* @import "@ionic/angular/css/palettes/dark.class.css"; */
+@import '@ionic/angular/css/palettes/dark.system.css';
+

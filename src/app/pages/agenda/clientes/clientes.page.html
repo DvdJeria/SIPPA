@@ -1,0 +1,53 @@
+<ion-header>
+    <ion-toolbar color="primary">
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/agenda"></ion-back-button>
+        </ion-buttons>
+        <ion-title>Gestión de Clientes</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="goToForm()">
+                <ion-icon slot="icon-only" name="person-add-outline"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+
+    <ion-toolbar>
+        <ion-searchbar
+                placeholder="Buscar por Nombre o Email"
+                animated
+                debounce="500"
+                (ionChange)="searchClientes($event)">
+        </ion-searchbar>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+    <ion-list>
+        <ion-item *ngFor="let cliente of clientes">
+            <ion-label>
+                <h2>{{ cliente.nombre }} {{ cliente.apellido }}</h2>
+                <p>Email: {{ cliente.email }}</p>
+                <p *ngIf="cliente.telefono">Teléfono: {{ cliente.telefono }}</p>
+            </ion-label>
+
+            <ion-buttons slot="end">
+                <ion-button color="warning" (click)="goToForm(cliente.cli_id)">
+                    <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+                </ion-button>
+
+                <ion-button color="danger" (click)="confirmDelete(cliente.cli_id, cliente.nombre)">
+                    <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+                </ion-button>
+            </ion-buttons>
+        </ion-item>
+    </ion-list>
+
+    <ion-card *ngIf="clientes.length === 0">
+        <ion-card-header>
+            <ion-card-title>No hay clientes</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+            Presiona el ícono <ion-icon name="person-add-outline" color="primary"></ion-icon> para agregar el primer cliente.
+        </ion-card-content>
+    </ion-card>
+</ion-content>

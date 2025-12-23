@@ -1,0 +1,88 @@
+
+ion-content {
+  --background: #F0F9F8 !important;
+  background: #F0F9F8 !important;
+}
+
+// Estilos para el toolbar
+ion-toolbar {
+  --background: #F3A2BE !important;
+  --color: #fff !important;
+}
+
+ion-title {
+  color: #fff !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 1.2rem;
+}
+
+ion-back-button {
+  --color: #fff !important;
+  color: #fff !important;
+}
+
+ion-button[slot="end"] {
+  --background: #fff !important;
+  --color: #F3A2BE !important;
+  background: #fff !important;
+  color: #F3A2BE !important;
+  font-weight: 700;
+  border-radius: 8px;
+}
+
+.ingredientes-card {
+  background: #FFD3DD !important;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(243, 162, 190, 0.13);
+  padding: 16px;
+}
+
+// Estilos para los items de la lista
+ion-item {
+  --background: #FFD3DD !important;
+  --border-color: #C6E6E3 !important;
+  margin: 8px 12px !important;
+  border-radius: 12px !important;
+  border: 1px solid #C6E6E3 !important;
+  box-shadow: 0 2px 6px rgba(243, 162, 190, 0.1) !important;
+}
+
+ion-item ion-label {
+  color: #81BFB7 !important;
+}
+
+ion-item ion-label h2 {
+  color: #F3A2BE !important;
+  font-weight: 600 !important;
+}
+
+ion-item ion-label p {
+  color: #81BFB7 !important;
+}
+
+// Estilos para los chips
+ion-chip {
+  --background: #C6E6E3 !important;
+  --color: #ffffff !important;
+  font-weight: 500 !important;
+}
+
+ion-chip[color="warning"] {
+  --background: #FFD3DD !important;
+  --color: #F3A2BE !important;
+}
+
+// Estilos para los botones de acción
+ion-button[color="primary"] {
+  --color: #F3A2BE !important;
+}
+
+ion-button[color="danger"] {
+  --color: #81BFB7 !important;
+}
+
+ion-button {
+  --background: #F3A2BE !important;
+  --color: #fff !important;
+}

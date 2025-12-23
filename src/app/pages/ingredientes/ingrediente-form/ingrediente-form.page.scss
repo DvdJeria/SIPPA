@@ -1,0 +1,51 @@
+
+// Fondo de la página
+ion-content {
+  --background: #F0F9F8 !important;
+  background: #F0F9F8 !important;
+}
+
+.form-content {
+  background: #FFD3DD !important;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(243, 162, 190, 0.13);
+}
+
+// Estilos para los items del formulario
+ion-item {
+  --background: #FFFFFF !important;
+  --border-color: #C6E6E3 !important;
+  margin: 12px 0 !important;
+  border-radius: 10px !important;
+  border: 1px solid #C6E6E3 !important;
+  box-shadow: 0 1px 4px rgba(243, 162, 190, 0.08) !important;
+}
+
+ion-item ion-label {
+  color: #F3A2BE !important;
+  font-weight: 600 !important;
+}
+
+ion-input,
+ion-select {
+  --color: #81BFB7 !important;
+  --placeholder-color: #C6E6E3 !important;
+}
+
+// Estilos para mensajes de error
+ion-text[color="danger"] {
+  color: #F3A2BE !important;
+}
+
+// Estilos para botones
+ion-button {
+  --background: #F3A2BE !important;
+  --color: #fff !important;
+  --border-radius: 8px !important;
+  margin-top: 16px !important;
+}
+
+ion-button:hover {
+  --background: #81BFB7 !important;
+}
