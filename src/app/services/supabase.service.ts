@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { createClient, SupabaseClient, Session, SupportedStorage } from '@supabase/supabase-js';
 import { SqliteService } from './sqlite.service';
-import { SyncService } from './sync.service';
+import { environment } from '../../environments/environment';
 
 import { CotizacionDetalleExtendida} from "../models/database.types";
 import { Network } from '@capacitor/network';
@@ -27,8 +27,10 @@ const CapacitorStorage: SupportedStorage = {
     },
 };
 
-const supabaseUrl = 'https://ymdcsjmzmagjyudfijtz.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltZGNzam16bWFnanl1ZGZpanR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM2ODQzMjAsImV4cCI6MjA3OTI2MDMyMH0.KzFLfbkzWcVt3HjMoSgXfA6Lemh-UmKLuPFMd8rNXok';
+//const supabaseUrl = 'https://fmjsqmvshrslspudakqh.supabase.co';
+//const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtanNxbXZzaHJzbHNwdWRha3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NTU3MzIsImV4cCI6MjA4OTQzMTczMn0.ZbH7tTpqdXI2PzH_zLQQhKwBdi62WfyJTSFvHLLVBpk';
+const supabaseUrl = environment.supabaseUrl;
+const supabaseKey = environment.supabaseKey;
 
 import {
     Ingrediente,

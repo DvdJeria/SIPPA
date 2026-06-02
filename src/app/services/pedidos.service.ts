@@ -51,61 +51,66 @@ export class PedidosService {
     private async listAllOnline(): Promise<PedidoFront[]> {
         const { data: pedidosData, error } = await this.supabase.supabaseClient
             .from('pedido')
-            .select(`
-                ped_id,
-                cot_id,
-                ped_fecha_entrega,
-                ped_precio,
-                est_id,
-                estado_pedido (est_nombre),
-                cliente (cli_id, cli_nombre, cli_apellido, cli_telefono)
-            `)
+            .select('ped_id, cot_id, ped_fecha_entrega, ped_precio, est_id, cli_id')
             .order('ped_fecha_entrega', { ascending: true });
+
+        console.log("PEDIDOS DATA:", pedidosData, "ERROR:", error);
 
         if (error) {
             console.error('Error al listar pedidos ONLINE:', error);
             throw new Error('No se pudo cargar la lista de pedidos.');
         }
 
-        // Mapear los datos de Supabase a la interfaz PedidoFront (LÓGICA EXISTENTE)
-        return (pedidosData as any[]).map((p: any): PedidoFront => {
-            const cliente = p.cliente as Cliente;
-            const estado = p.estado_pedido as { est_nombre: string };
+        const pedidosFront: PedidoFront[] = [];
 
-            return {
-                // Mapeo del Pedido
+        for (const p of pedidosData as any[]) {
+            // 1. Buscar el estado por est_id
+            const { data: estadoData } = await this.supabase.supabaseClient
+                .from('estado_pedido')
+                .select('est_nombre')
+                .eq('est_id', p.est_id)
+                .single();
+
+            // 2. Buscar el cliente por cli_id
+            const { data: clienteData } = await this.supabase.supabaseClient
+                .from('cliente')
+                .select('cli_id, cli_nombre, cli_apellido, cli_telefono, cli_instagram')
+                .eq('cli_id', p.cli_id)
+                .single();
+
+            pedidosFront.push({
+                // === Pedido base ===
                 id: p.ped_id,
                 cotId: p.cot_id,
                 fechaEntrega: p.ped_fecha_entrega,
                 precio: p.ped_precio,
                 est_id: p.est_id,
+                ped_fecha_creacion: new Date().toISOString(),
 
-                // Propiedad Faltante 1: ped_fecha_creacion
-                ped_fecha_creacion: p.ped_fecha_creacion || new Date().toISOString(),
+                // === Estado ===
+                estado: estadoData?.est_nombre?.toLowerCase() || 'desconocido',
 
-                // Mapeo del Estado
-                estado: estado?.est_nombre.toLowerCase() || 'desconocido',
+                // === Cliente ===
+                clienteId: clienteData?.cli_id ?? '',
+                cli_nombre: clienteData?.cli_nombre || '',
+                cli_apellido: clienteData?.cli_apellido || '',
+                cli_telefono: clienteData?.cli_telefono || null,
+                cli_instagram: clienteData?.cli_instagram || null,
 
-                // Mapeo del Cliente (¡Aquí estaba el problema de nombres!)
-                clienteId: cliente.cli_id ?? '',
+                clienteNombre: clienteData?.cli_nombre || '',
+                clienteApellido: clienteData?.cli_apellido || '',
+                clienteTelefono: clienteData?.cli_telefono || null,
+                clienteInstagram: clienteData?.cli_instagram || null,
 
-                // Propiedades Planas para el UI/Formulario
-                cli_nombre: cliente.cli_nombre,
-                cli_apellido: cliente.cli_apellido || '',
-                cli_instagram: cliente.cli_instagram || null,
-                cli_telefono: cliente.cli_telefono || null,
-
-                clienteNombre: cliente.cli_nombre,
-                clienteApellido: cliente.cli_apellido || '',
-                clienteTelefono: cliente.cli_telefono || null,
-                clienteInstagram: cliente.cli_instagram || null,
-
-                // Campos Legacy
+                // === Campos legacy ===
                 descripcion: null,
                 clienteDireccion: null,
-            };
-        });
+            });
+        }
+
+        return pedidosFront;
     }
+
 
     /**
      * Obtiene todos los pedidos desde SQLite (NUEVA LÓGICA OFFLINE)
