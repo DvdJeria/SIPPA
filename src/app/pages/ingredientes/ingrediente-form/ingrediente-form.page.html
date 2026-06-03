@@ -43,7 +43,7 @@
       <ion-item>
         <ion-label position="floating">Unidad de Medida</ion-label>
         <ion-select formControlName="unmed_id" required [value]="ingredienteForm.get('unmed_id')?.value || 0">
-          <ion-select-option [value]="0">Seleccione una unidad</ion-select-option>
+          <ion-select-option [value]="">Seleccione una unidad</ion-select-option>
           <ion-select-option
             *ngFor="let unidad of unidades"
             [value]="unidad.unmed_id">
@@ -53,7 +53,7 @@
       </ion-item>
 
         <ion-item>
-            <ion-label position="floating">Cantidad Base de Compra</ion-label>
+            <ion-label position="floating">Cantidad del Envase</ion-label>
             <ion-input type="number" formControlName="ing_cantidad_base" min="0"></ion-input>
         </ion-item>
       <ion-text color="danger" *ngIf="ingredienteForm.get('unmed_id')?.touched && ingredienteForm.get('unmed_id')?.value === 0">

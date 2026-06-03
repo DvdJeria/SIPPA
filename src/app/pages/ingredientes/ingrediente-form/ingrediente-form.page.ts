@@ -54,6 +54,11 @@ export class IngredienteFormPage implements OnInit {
     this.ingredienteId = this.route.snapshot.paramMap.get('id');
     this.isEditing = !!this.ingredienteId;
     this.initForm();
+    this.ingredienteForm.get('unmed_id')?.valueChanges.subscribe(
+        (unmedId) => {
+          this.onUnidadChange(unmedId);
+        }
+    );
     this.loadSelectData();
     if (this.isEditing && this.ingredienteId) {
       this.loadIngredienteData(this.ingredienteId);
@@ -76,7 +81,7 @@ export class IngredienteFormPage implements OnInit {
     this.ingredienteForm = this.fb.group({
       ing_nombre: ['', [Validators.required, Validators.maxLength(100)]],
       ing_precio: [0, [Validators.required, Validators.min(0)]],
-      unmed_id: [0, [Validators.required, Validators.min(1)]],
+      unmed_id: ['', Validators.required],
       ing_cantidad_base: [0, [Validators.required, Validators.min(0)]]
     });
   }
@@ -99,6 +104,10 @@ export class IngredienteFormPage implements OnInit {
       const ingrediente = await this.supabaseService.getIngredienteById(id);
 
       this.ingredienteForm.patchValue(ingrediente);
+
+      this.onUnidadChange(
+          ingrediente.unmed_id
+      );
 
     } catch (error) {
       console.error('Error al cargar datos del ingrediente:', error);
@@ -133,31 +142,65 @@ export class IngredienteFormPage implements OnInit {
     try {
       if (this.isEditing && this.ingredienteId) {
 
-        await this.supabaseService.updateIngrediente(this.ingredienteId, formValue);
-        await this.presentToast('Ingrediente actualizado con éxito.');
+        await this.supabaseService.updateIngrediente(
+            this.ingredienteId,
+            formValue
+        );
 
-        this.isLoading = false;
-
-        setTimeout(() => {
-          this.navCtrl.navigateBack('/ingredientes');
-        }, 100);
+        await this.presentToast(
+            'Ingrediente actualizado con éxito.'
+        );
 
       } else {
 
-        await this.supabaseService.addIngrediente(formValue);
-        await this.presentToast('Ingrediente agregado con éxito.');
+        await this.supabaseService.addIngrediente(
+            formValue
+        );
 
-        this.navCtrl.navigateRoot('/pages/ingredientes');
-
-        this.isLoading = false;
-        return;
+        await this.presentToast(
+            'Ingrediente agregado con éxito.'
+        );
       }
+
+      await this.router.navigate(['/pages/ingredientes']);
 
     } catch (error) {
       console.error('Error al guardar datos:', error);
       alert('Ocurrió un error al intentar guardar/actualizar el ingrediente. Verifique RLS.');
     } finally {
       this.isLoading = false;
+    }
+  }
+
+  private onUnidadChange(unmedId: string): void {
+
+    const unidadSeleccionada = this.unidades.find(
+        unidad => unidad.unmed_id === unmedId
+    );
+
+    if (!unidadSeleccionada) {
+      return;
+    }
+
+    const esUnidad =
+        unidadSeleccionada.unmed_nombre.trim().toLowerCase() === 'unidad';
+
+    const cantidadControl =
+        this.ingredienteForm.get('ing_cantidad_base');
+
+    if (!cantidadControl) {
+      return;
+    }
+
+    if (esUnidad) {
+
+      cantidadControl.setValue(1);
+
+      cantidadControl.disable();
+
+    } else {
+
+      cantidadControl.enable();
     }
   }
 }
