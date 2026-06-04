@@ -394,6 +394,11 @@ export class SupabaseService {
             }
         }
 
+        //3cf10b55-cda6-4d8d-947e-7d21f69343f9
+
+        //6fa7b884-32f7-4f46-98be-6065d3d921ce
+        //aba57b28-3414-429c-b524-ffd1aecfde72
+
         try {
 
             await this.sqliteService.insertClienteDelta(clientePayload);

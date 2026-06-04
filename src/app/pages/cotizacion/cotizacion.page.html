@@ -21,13 +21,11 @@
     <ion-grid>
         <ion-row>
             <ion-col>Ingrediente</ion-col>
-            <ion-col>Medida</ion-col>
             <ion-col>Unidad</ion-col>
-            <ion-col>Cant.</ion-col>
-            <ion-col>Total</ion-col>
-            <ion-col>
-
-            </ion-col>
+            <ion-col>Precio</ion-col>
+            <ion-col>Cantidad</ion-col>
+            <ion-col>Sub Total</ion-col>
+            <ion-col></ion-col>
         </ion-row>
     </ion-grid>
 
@@ -86,7 +84,11 @@
         </ion-row>
     </ion-grid>
 
-    <ion-button expand="block" fill="clear" (click)="addIngredient()">
+    <ion-button
+            expand="block"
+            fill="outline"
+            color="primary"
+            (click)="addIngredient()">
         <ion-icon slot="start" name="add-circle-outline"></ion-icon>
         Agregar
     </ion-button>
@@ -135,13 +137,8 @@
             </ion-row>
 
             <ion-button expand="block" size="large" color="success" (click)="guardarCotizacion()"
-                        [disabled]="totalCost === 0">
-                Guardar Cotización (Sin Pedido)
-            </ion-button>
-
-            <ion-button expand="block" size="large" color="primary" (click)="convertToPedido()"
-                        [disabled]="totalCost === 0">
-                Convertir a Pedido
+                        [disabled]="!canSave">
+                Guardar Cotización
             </ion-button>
 
         </ion-grid>
