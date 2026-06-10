@@ -22,7 +22,7 @@ coverage/
 
 # Si www es generado por ionic build, ignorarlo
 # Si guardas contenido manual ahí, NO
-# www/
+www/
 
 # =========================
 # MacOS
