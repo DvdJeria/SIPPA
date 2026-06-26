@@ -3,9 +3,9 @@ import {
     CapacitorSQLite,
     SQLiteDBConnection,
     SQLiteConnection,
-    capSQLiteRunOptions // Corregido el nombre del tipo
+    capSQLiteRunOptions
 } from '@capacitor-community/sqlite';
-// Importa los tipos
+
 import {
     Ingrediente,
     UnidadMedida,
@@ -24,7 +24,7 @@ export class SqliteService {
     private _isSQLiteActive: boolean = false;
     private db!: SQLiteDBConnection;
     private sqliteConnection!: SQLiteConnection;
-    private dbReadyPromise: Promise<void>; // NUEVO: Promesa para manejar la inicialización asíncrona.
+    private dbReadyPromise: Promise<void>;
 
     public get isSQLiteActive(): boolean {
         return this._isSQLiteActive;
@@ -39,18 +39,14 @@ export class SqliteService {
 
         if (this.isNative) {
             this.sqliteConnection = new SQLiteConnection(CapacitorSQLite);
-            // 2. Asignar la inicialización asíncrona a la promesa
+
             this.dbReadyPromise = this.initializeDatabase();
         } else {
-            // 3. Para web/dev, resolver inmediatamente
+
             this.dbReadyPromise = Promise.resolve();
             console.log('[SQLiteService] Ejecutando en Web/Dev. SQLite deshabilitado. Usando Supabase.');
         }
     }
-
-    // ===============================================
-    // 🔑 MÉTODOS DE INICIALIZACIÓN Y TABLAS
-    // ===============================================
 
     public async initializeDatabase(): Promise<void> {
 
@@ -58,7 +54,7 @@ export class SqliteService {
             console.log('SQLITE: Intentando conectar a la DB.');
 
             const dbName = 'sippa_db';
-            // Manejar la conexión existente
+
             const isConnection = await this.sqliteConnection.isConnection('sippa_db', false);
 
             if (isConnection.result) {
@@ -77,7 +73,6 @@ export class SqliteService {
 
             await this.db.open();
 
-            // 2. Crear todas las tablas necesarias
             const createStatements = [
                 `CREATE TABLE IF NOT EXISTS cliente (
         cli_id TEXT PRIMARY KEY,
@@ -169,16 +164,11 @@ export class SqliteService {
         }
     }
 
-    // ===============================================
-    // 🔑 MÉTODOS DE AUTENTICACIÓN LOCAL
-    // ===============================================
-
-    /** Guarda el email local para permitir el acceso offline. */
     public async setLocalAuth(email: string): Promise<void> {
         await this.dbReadyPromise; // <-- ESPERAR INICIALIZACIÓN
         if (!this._isSQLiteActive) return;
         try {
-            // CORRECCIÓN TS2353: Pasar el array de sentencias directamente
+
             const setStatements = [
                 { statement: 'DELETE FROM local_auth;', values: [] },
                 { statement: 'INSERT INTO local_auth (email) VALUES (?)', values: [email] }
@@ -190,9 +180,8 @@ export class SqliteService {
         }
     }
 
-    /** Revisa si hay una sesión guardada localmente. */
     public async hasLocalAuthEntry(): Promise<boolean> {
-        await this.dbReadyPromise; // <-- ESPERAR INICIALIZACIÓN
+        await this.dbReadyPromise;
         if (!this._isSQLiteActive) return false;
         try {
             const res = await this.db.query('SELECT COUNT(*) AS count FROM local_auth;');
@@ -204,20 +193,14 @@ export class SqliteService {
         }
     }
 
-    /** Revisa las credenciales locales. */
     public async checkLocalAuth(email: string): Promise<boolean> {
-        await this.dbReadyPromise; // <-- ESPERAR INICIALIZACIÓN
+        await this.dbReadyPromise;
         console.log(`SQLITE: Verificando sesión local para ${email} (Retorna false por diseño).`);
         return false;
     }
 
-
-    // ===============================================
-    // 🔑 MÉTODOS DE LECTURA LOCAL (OFFLINE)
-    // ===============================================
-
     public async getIngredientes(searchText: string = ''): Promise<Ingrediente[]> {
-        await this.dbReadyPromise; // <-- ESPERAR INICIALIZACIÓN
+        await this.dbReadyPromise;
         if (!this._isSQLiteActive) return [];
         console.log(`SQLITE: Consultando ingredientes locales.`);
         try {
@@ -236,7 +219,7 @@ export class SqliteService {
     }
 
     public async getUnidadesMedida(): Promise<UnidadMedida[]> {
-        await this.dbReadyPromise; // <-- ESPERAR INICIALIZACIÓN
+        await this.dbReadyPromise
         if (!this._isSQLiteActive) return [];
         console.log('SQLITE: Consultando unidades de medida locales.');
         try {
@@ -249,7 +232,7 @@ export class SqliteService {
     }
 
     public async getPedidosLocal(): Promise<Pedido[]> {
-        await this.dbReadyPromise; // <-- ESPERAR INICIALIZACIÓN
+        await this.dbReadyPromise;
         if (!this._isSQLiteActive) return [];
         console.log("SQLITE: Consultando pedidos locales.");
         try {
@@ -262,7 +245,7 @@ export class SqliteService {
     }
 
     public async getClientesLocal(): Promise<Cliente[]> {
-        await this.dbReadyPromise; // <-- ESPERAR INICIALIZACIÓN
+        await this.dbReadyPromise;
         if (!this._isSQLiteActive) return [];
         console.log("SQLITE: Consultando clientes locales.");
         try {
@@ -275,7 +258,7 @@ export class SqliteService {
     }
 
     public async getCotizacionesLocal(): Promise<Cotizacion[]> {
-        await this.dbReadyPromise; // <-- ESPERAR INICIALIZACIÓN
+        await this.dbReadyPromise;
         if (!this._isSQLiteActive) return [];
         console.log("SQLITE: Consultando cotizaciones locales con detalles.");
 
@@ -288,7 +271,7 @@ export class SqliteService {
                     'SELECT * FROM cotizacion_detalle WHERE cot_id = ?',
                     [cot.cot_id]
                 );
-                // Asumimos que Cotizacion tiene una propiedad 'detalles'
+
                 (cot as any).detalles = detallesRes.values;
             }
 
@@ -299,11 +282,6 @@ export class SqliteService {
         }
     }
 
-    // ===============================================
-    // 🔑 MÉTODOS DE SINCRONIZACIÓN (SYNC UP/DOWN)
-    // ===============================================
-
-    /** 🚨 Sync Down: Borra y reemplaza todos los datos. */
     public async saveFullSyncDown(
         ingredientes: Ingrediente[],
         unidades: UnidadMedida[],
@@ -318,17 +296,12 @@ export class SqliteService {
         console.log(`SQLITE: Iniciando Full Sync Down para ${clientes.length} Clientes, ${pedidos.length} Pedidos, etc.`);
 
         try {
-            // 🛑 CRÍTICO: Eliminar beginTransaction/commitTransaction para evitar conflicto con executeSet.
 
-            // 1. PREPARAR SENTENCIAS DE BORRADO
-            // Si una tabla NO existe (como pasó con 'pedido'), esto fallará y la DB quedará limpia.
             const tablesToClear = ['cliente', 'pedido', 'cotizacion', 'cotizacion_detalle', 'ingredientes', 'unidad_medida', 'estado_pedido'];
             const deleteStatements: capSQLiteRunOptions[] = tablesToClear.map(table => ({ statement: `DELETE FROM ${table};`, values: [] }));
 
-            // 2. PREPARAR SENTENCIAS DE INSERCIÓN EN LOTE
             const insertStatements: capSQLiteRunOptions[] = [];
 
-            // 2.1 Insertar Estados de Pedido
             estados.forEach(e => {
                 insertStatements.push({
                     statement: 'INSERT INTO estado_pedido (est_id, est_nombre) VALUES (?, ?)',
@@ -336,7 +309,6 @@ export class SqliteService {
                 });
             });
 
-            // 2.2 Insertar Unidades de Medida
             unidades.forEach(u => {
                 insertStatements.push({
                     statement: 'INSERT INTO unidad_medida (unmed_id, unmed_nombre) VALUES (?, ?)',
@@ -344,7 +316,6 @@ export class SqliteService {
                 });
             });
 
-            // 2.3 Insertar Ingredientes
             ingredientes.forEach(i => {
                 insertStatements.push({
                     statement: 'INSERT INTO ingredientes (ing_id, ing_nombre, ing_precio, unmed_id, is_deleted, ing_cantidad_base) VALUES (?, ?, ?, ?, ?, ?)',
@@ -352,7 +323,6 @@ export class SqliteService {
                 });
             });
 
-            // 2.4 Insertar Clientes
             clientes.forEach(c => {
                 insertStatements.push({
                     statement: 'INSERT INTO cliente (cli_id, cli_nombre, cli_apellido, cli_telefono, cli_instagram, deleted_at) VALUES (?, ?, ?, ?, ?, ?)',
@@ -360,7 +330,6 @@ export class SqliteService {
                 });
             });
 
-            // 2.5 Insertar Cotizaciones y sus Detalles
             cotizaciones.forEach((cot: any) => {
                 insertStatements.push({
                     statement: 'INSERT INTO cotizacion (cot_id, cot_nombre, cot_total, cot_fecha) VALUES (?, ?, ?, ?)',
@@ -376,7 +345,6 @@ export class SqliteService {
                 }
             });
 
-            // 2.6 Insertar Pedidos
             pedidos.forEach(ped => {
                 insertStatements.push({
                     statement: 'INSERT INTO pedido (ped_id, cli_id, cot_id, ped_precio, ped_fecha_entrega, est_id) VALUES (?, ?, ?, ?, ?, ?)',
@@ -384,13 +352,11 @@ export class SqliteService {
                 });
             });
 
-            // 3. EJECUTAR TODAS LAS SENTENCIAS EN UN LOTE
             const allStatements = [
                 ...deleteStatements,
                 ...insertStatements
             ];
 
-            // executeSet lo maneja como un lote atómico (transacción implícita)
             await this.db.executeSet(allStatements as any);
 
             console.log(`SQLITE: Lote de sentencias de Sync Down ejecutado.`);
@@ -400,13 +366,12 @@ export class SqliteService {
             let errorMessage = "Error desconocido.";
             let errorDetails = e;
 
-            // Intentar acceder a propiedades comunes del error
             if (e instanceof Error) {
                 errorMessage = e.message;
                 errorDetails = {
                     name: e.name,
                     message: e.message,
-                    stack: e.stack // Útil para trazar dónde se originó
+                    stack: e.stack
                 };
             } else if (typeof e === 'object' && e !== null && 'message' in e) {
                 errorMessage = (e as any).message;
@@ -414,15 +379,12 @@ export class SqliteService {
 
             console.error("--- SQLITE ERROR DETALLADO en saveFullSyncDown ---\nMensaje principal:", errorMessage, "\nDetalles (Objeto e):", errorDetails);
 
-            // El logcat de Android a menudo reporta el error nativo en e.message
+
             console.error("FALLO EN LA OPERACIÓN DE SINCRONIZACIÓN.");
             throw new Error("Fallo la operación de Full Sync Down.");
         }
     }
 
-    // ... (El resto de los métodos de Delta/Sync Up)
-
-    /** Sync Up: Obtiene deltas pendientes. */
     public async getSyncDeltas(): Promise<any> {
         await this.dbReadyPromise; // <-- ESPERAR INICIALIZACIÓN
         if (!this._isSQLiteActive) return { clientes: [], cotizaciones: [], pedidos: [] };
@@ -450,9 +412,8 @@ export class SqliteService {
         }
     }
 
-    // Métodos de Captura Delta
     public async insertClienteDelta(clienteData: any): Promise<void> {
-        await this.dbReadyPromise; // <-- ESPERAR INICIALIZACIÓN
+        await this.dbReadyPromise;
         if (!this._isSQLiteActive) return;
         const payload = JSON.stringify(clienteData);
         await this.db.run('INSERT INTO delta_clientes (action, payload_json, timestamp) VALUES (?, ?, ?)', ['INSERT', payload, Date.now()]);
@@ -460,7 +421,7 @@ export class SqliteService {
     }
 
     public async insertCotizacionDelta(cotizacionData: any): Promise<void> {
-        await this.dbReadyPromise; // <-- ESPERAR INICIALIZACIÓN
+        await this.dbReadyPromise;
         if (!this._isSQLiteActive) return;
         const payload = JSON.stringify(cotizacionData);
         await this.db.run('INSERT INTO delta_cotizaciones (action, payload_json, timestamp) VALUES (?, ?, ?)', ['INSERT', payload, Date.now()]);
@@ -468,7 +429,7 @@ export class SqliteService {
     }
 
     public async insertPedidoDelta(action: string, pedidoData: any): Promise<void> {
-        await this.dbReadyPromise; // <-- ESPERAR INICIALIZACIÓN
+        await this.dbReadyPromise;
         if (!this._isSQLiteActive) return;
         const payload = JSON.stringify(pedidoData);
         await this.db.run('INSERT INTO delta_pedidos (action, payload_json, timestamp) VALUES (?, ?, ?)', [action, payload, Date.now()]);
@@ -476,7 +437,7 @@ export class SqliteService {
     }
 
     public async deleteSyncDelta(deltaId: string | number, tableName: string): Promise<void> {
-        await this.dbReadyPromise; // <-- ESPERAR INICIALIZACIÓN
+        await this.dbReadyPromise;
         if (!this._isSQLiteActive) return;
 
         await this.db.run(`DELETE FROM ${tableName} WHERE delta_id = ?`, [deltaId]);

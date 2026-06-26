@@ -93,7 +93,7 @@ export class IngredientesPage {
     try {
       this.userRole = await this.supabaseService.getUserRole();
 
-      this.ingredientes = await this.ingredientesService.getIngredientes(this.searchTerm);
+      this.ingredientes = await this.ingredientesService.getIngredientes(this.searchTerm, true);
 
     } catch (error) {
       console.error('Error al cargar datos:', error);
