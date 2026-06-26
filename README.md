@@ -108,7 +108,7 @@ Próximamente
 Clonar el repositorio
 
 ```bash
-git clone https://github.com/TU_USUARIO/SIPPA.git
+git clone https://github.com/DvdJeria/SIPPA.git
 ```
 
 Ingresar al proyecto
